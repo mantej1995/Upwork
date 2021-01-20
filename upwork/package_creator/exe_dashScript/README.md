@@ -1,4 +1,4 @@
-## created exe of simple python dash script using pyinstaller 
+## Created exe of simple python dash script using pyinstaller 
 steps followed 
 
 1.created run.py file in the same directory as our sample script(app.py)
