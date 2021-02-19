@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<!-- start Mixpanel --><script type="text/javascript">(function(f,b){if(!b.__SV){var a,e,i,g;window.mixpanel=b;b._i=[];b.init=function(a,e,d){function f(b,h){var a=h.split(".");2==a.length&&(b=b[a[0]],h=a[1]);b[h]=function(){b.push([h].concat(Array.prototype.slice.call(arguments,0)))}}var c=b;"undefined"!==typeof d?c=b[d]=[]:d="mixpanel";c.people=c.people||[];c.toString=function(b){var a="mixpanel";"mixpanel"!==d&&(a+="."+d);b||(a+=" (stub)");return a};c.people.toString=function(){return c.toString(1)+".people (stub)"};i="disable track time_event track_pageview track_links track_forms register register_once alias unregister identify name_tag set_config people.set people.set_once people.increment people.append people.track_charge people.clear_charges people.delete_user people.union".split(" ");
+for(g=0;g<i.length;g++)f(c,i[g]);b._i.push([a,e,d])};b.__SV=1.2;a=f.createElement("script");a.type="text/javascript";a.async=!0;a.src="//cdn.mxpnl.com/libs/mixpanel-2-latest.min.js";e=f.getElementsByTagName("script")[0];e.parentNode.insertBefore(a,e)}})(document,window.mixpanel||[]);
+mixpanel.init("f05b87d9", {"loaded":function(){var x = mixpanel.get_distinct_id()}});
+</script><!-- end Mixpanel -->
+
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+  
+<title>Mantej's Music Finder</title>
+
+</head>
+
+<!-- Track page view for landing page -->
+<script>mixpanel.track("Page Loaded", {"Page": "Landing"});</script>
+
+<!-- Start the timer for tracking session length from homepage to landing page -->
+<script>mixpanel.track("Process Complete");</script>
+
+<body>
+
+  <!-- Grab form values from URL and display to the user in the page -->
+  <script>
+  function getValues(varname)
+  {
+    var url_parts = location.href.split('?')[1].split('&');
+    var val = "TEST";
+    for(i=0;i<url_parts.length;i++)
+    {
+      var local_parts = url_parts[i].split("=");
+      if(local_parts[0]==varname)
+      {
+        val = local_parts[1];
+      }
+    }
+   return val;
+  }
+  </script>
+  
+  <p><h2>Welcome <script>var x = getValues("username"); document.write(x);</script> to Mantej's Music Finder</h2></p>
+
+  <h4>Check out our newest selection of <script>var x = getValues("music"); document.write(x);</script> music!</h4>
+ 
+  </br>
+
+  <!-- Create containers for YouTube videos -->
+  <div id="ytplayer1"></div>
+  <div id="ytplayer2"></div>
+
+  <script>
+
+    //Grab the genre to determine the videos to display
+    var type = getValues("music");
+    var play = "";
+
+    if(type=="Dance"){play1="YnwfTHpnGLY"; play2="hdBAfp2eizw";}
+    else if(type=="Rap"){play1="UePtoxDhJSw"; play2="uWbXQQG9B6c";}
+    else if(type=="Rock"){play1="1w7OgIMMRc4"; play2="vVy9Lgpg1m8";}
+    else if(type=="Top+40"){play1="nfWlot6h_JM"; play2="m-M1AtrxztU";}
+
+    // Load the IFrame Player API code asynchronously.
+    var tag = document.createElement('script');
+    tag.src = "https://www.youtube.com/player_api";
+    var firstScriptTag = document.getElementsByTagName('script')[0];
+    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+    // Replace the 'ytplayer' element with an <iframe> and
+    // YouTube player after the API code downloads.
+    var player;
+    function onYouTubePlayerAPIReady() {
+      player = new YT.Player("ytplayer1", {
+        height: '390',
+        width: '640',
+        videoId: play1 ,
+        events: {
+            'onReady': onPlayerReady,
+            'onStateChange': onPlayerStateChange
+          }
+      });
+      player = new YT.Player("ytplayer2", {
+        height: '390',
+        width: '640',
+        videoId: play2 ,
+        events: {
+            'onReady': onPlayerReady,
+            'onStateChange': onPlayerStateChange
+          }
+      });
+    }
+
+     // The API will call this function when the video player is ready.
+      function onPlayerReady(event) {}
+
+      // The API calls this function when the player's state changes.
+      // The function indicates that when playing a video (state=1),
+      // The player should play for six seconds and then stop.
+      var done = false;
+      function onPlayerStateChange(event) {
+        if (event.data == YT.PlayerState.PLAYING && !done) {
+          // Track an event when a user plays the video
+          mixpanel.track("Video Played", {"Genre": type});
+          done = true;
+        }
+      }
+      function stopVideo() {
+        player.stopVideo();
+      }
+
+  </script>
+
+</body>
+</html>
