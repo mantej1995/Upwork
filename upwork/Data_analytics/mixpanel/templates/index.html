@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<!-- start Mixpanel --><script type="text/javascript">(function(f,b){if(!b.__SV){var a,e,i,g;window.mixpanel=b;b._i=[];b.init=function(a,e,d){function f(b,h){var a=h.split(".");2==a.length&&(b=b[a[0]],h=a[1]);b[h]=function(){b.push([h].concat(Array.prototype.slice.call(arguments,0)))}}var c=b;"undefined"!==typeof d?c=b[d]=[]:d="mixpanel";c.people=c.people||[];c.toString=function(b){var a="mixpanel";"mixpanel"!==d&&(a+="."+d);b||(a+=" (stub)");return a};c.people.toString=function(){return c.toString(1)+".people (stub)"};i="disable track time_event track_pageview track_links track_forms register register_once alias unregister identify name_tag set_config people.set people.set_once people.increment people.append people.track_charge people.clear_charges people.delete_user people.union".split(" ");
+for(g=0;g<i.length;g++)f(c,i[g]);b._i.push([a,e,d])};b.__SV=1.2;a=f.createElement("script");a.type="text/javascript";a.async=!0;a.src="//cdn.mxpnl.com/libs/mixpanel-2-latest.min.js";e=f.getElementsByTagName("script")[0];e.parentNode.insertBefore(a,e)}})(document,window.mixpanel||[]);
+mixpanel.init("f05b87d9", {"loaded":function(){var x = mixpanel.get_distinct_id()}});
+</script><!-- end Mixpanel -->
+
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+
+<script src="{{url_for('static',filename='scenario.js')}}"></script>
+  
+<title>Mantej's Music Finder</title>
+
+</head>
+
+<!-- Custom styling for Mixpanel in-app notifications -->
+<style type="text/css">
+  .mixpanel-notification-visible{
+    background-color: #F7E995;
+  }
+  #mixpanel-notification-content{
+    font-size: 20px;
+    font-family: Impact;
+    font-style: bold;
+    color: #A9513C;
+  }
+  #mixpanel-notification-tagline{
+    visibility: hidden;
+  }
+</style>
+
+<!-- Track home page view and custom source tracking for specific sources of traffic -->
+<script>mixpanel.track("Page Loaded", {"Page": "Home", "Source": source()});
+
+function source(){
+  if (document.referrer.search('https?://(.*)google.([^/?]*)') === 0) {
+    return 'Google';
+  } else if (document.referrer.search('https?://(.*)bing(.*)') === 0) {
+    return 'Bing';
+  } else if (document.referrer.search('https?://(.*)yahoo(.*)') === 0) {
+    return 'Yahoo';
+  } else if (document.referrer.search('https?://(.*)facebook(.*)') === 0) {
+    return 'Facebook';
+  } else if (document.referrer.search('https?://(.*)twitter(.*)') === 0) {
+    return 'Twitter';
+  } else {
+    return 'Other';
+  }
+}
+</script>
+
+<!-- Start the timer for tracking session length from homepage to landing page -->
+<script>mixpanel.time_event("Process Complete");</script>
+
+<body>
+
+<!-- Store user agent as a super property for later usage as needed (block bots, specific users, etc.) -->
+<script>
+var userAgentBotTest = navigator.userAgent;
+mixpanel.register({"User Agent": userAgentBotTest});
+if (/(Mozilla\/4.0)/i.test(userAgentBotTest)) {
+  mixpanel.register({"$ignore": true});
+}
+</script>
+
+<!-- JavaScript A/B Testing using scenario.js (http://makerstudios.github.io/Scenario.js/#/intro-1) -->
+<!-- Due to using scenario.js, also tracking clicks on links in this block -->
+<script>
+$(document).ready(function(){
+  var test = new Scenario({
+    name: 'Homepage A/B Test',
+    tracker: function(text, props, cb){ // This is the default, you may omit it
+    return mixpanel.track(text, props, cb);
+      }
+    })
+    .test({
+      name: 'Music Red',
+      weight: 5,
+      callback: function(){ 
+        $("#music").attr("src", "{{url_for('static',filename='music.jpg')}}");
+        $("#title").attr("color", "#F08080");
+        $("#title").attr("face", "Arial");
+        $("#loginlink").attr("color", "#FF4500");
+        $("#signuplink").attr("color", "#FF4500");
+        $("#signuplink").attr("size", "32");
+      }
+    })
+    .test({
+      name: 'iPod Green',
+      weight: 5,
+      callback: function(){
+        $("#music").attr("src", "{{url_for('static',filename='notes.jpg')}}");
+        $("#title").attr("color", "#7FFF00");
+        $("#title").attr("face", "Courier");
+        $("#loginlink").attr("color", "#7FFF00");
+        $("#loginlink").attr("size", "20");
+        $("#signuplink").attr("color", "#7FFF00");
+      }
+    })
+    .test({
+      name: 'Music Green',
+      weight: 5,
+      callback: function(){ 
+        $("#music").attr("src", "{{url_for('static',filename='music.jpg')}}");
+        $("#title").attr("color", "#7FFF00");
+        $("#title").attr("face", "Arial");
+        $("#loginlink").attr("color", "#7FFF00");
+        $("#signuplink").attr("color", "#7FFF00");
+        $("#signuplink").attr("size", "32");
+      }
+    })
+    .test({
+      name: 'iPod Red',
+      weight: 5,
+      callback: function(){
+        $("#music").attr("src", "{{url_for('static',filename='notes.jpg')}}");
+        $("#title").attr("color", "#FF4500");
+        $("#title").attr("face", "Courier");
+        $("#loginlink").attr("color", "#FF4500");
+        $("#loginlink").attr("size", "20");
+        $("#signuplink").attr("color", "#FF4500");
+      }
+    })
+    .go();
+
+  $("#login").on('click', function(event){
+    test.complete();
+    var cb = generate_callback($(this)); 
+    event.preventDefault();
+    mixpanel.track("Login Clicked");
+    setTimeout(cb, 500);
+  });
+    
+
+  $("#signup").on('click', function(event){
+    test.complete();
+    var cb = generate_callback($(this)); 
+    event.preventDefault();
+    mixpanel.track("Signup Clicked");
+    setTimeout(cb, 500);
+  });
+
+  function generate_callback(a) {
+    return function() { 
+      window.location = a.attr("href"); 
+    } 
+  }
+});
+</script>
+  
+  <div>
+  <p><h1><font id="title">Mantej's Music Finder</font></h1></p>
+  </br>
+  <div id="image">
+    <img id="music">
+    <script>
+    // Track an image hover event in Mixpanel
+    $("#music").mouseenter(
+        function(){
+          mixpanel.track("Hover", {"Image": "Logo"});
+    });
+    </script>
+  </div>
+  </br>
+  </br>
+
+  <style id="text"></style>
+  <div class="logindiv"><a id='login' href="login.html"><font id="loginlink">Login</font></a></div></br>
+  <div class="signupdiv"><a id='signup' href="signup.html"><font id="signuplink">Sign Up</font></a></div>
+
+  <script>
+  // Normally we would track the login and signup links being clicked in Mixpanel using mixpanel.track_links
+  // Due to scenario.js we do not utilize this here, but the code for this is below:
+  // mixpanel.track_links("#login a", "Login Clicked");
+  // mixpanel.track_links("#signup a", "Signup Clicked");
+
+  // If you want more control over the DOM elements being tracked, utilize the actual jQuery code below instead
+  // This is the same code being used in the scenario.js block to send the events currently:
+    /*$("#login").click(function(event) { 
+      var cb = generate_callback($(this)); 
+      event.preventDefault();
+      mixpanel.track("Login Clicked", {}, cb);
+      setTimeout(cb, 500);
+    });
+    function generate_callback(a) { 
+      return function() { 
+        window.location = a.attr("href"); 
+      } 
+    } */
+  </script>
+
+</div>
+</body>
+</html>
